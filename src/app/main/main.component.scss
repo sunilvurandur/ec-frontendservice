@@ -1,0 +1,30 @@
+.header {
+    background-color: #007bff; /* Bootstrap primary color */
+    color: #fff;
+    text-transform: uppercase;
+    text-align: center;
+    font-family: 'Nexa', sans-serif;
+  }
+  
+  .faded-container {
+    background-color: rgba(0, 0, 0, 0.05);
+    width: 100%;
+  }
+  
+  button {
+    border-radius: 20px;
+    font-weight: bold;
+    font-family: 'Nexa', sans-serif;
+    background-color: #f0f0f0; /* Greyish background color for inactive buttons */
+    color: #000; /* Black text color */
+    border: none;
+    &.active {
+      background-color: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+    &:not(.active):hover {
+      background-color: #e0e0e0; /* Slightly darker grey on hover */
+    }
+  }
+  

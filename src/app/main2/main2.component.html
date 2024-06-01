@@ -1,0 +1,81 @@
+<div class="bgimg">
+<div style="max-width: 100% ;height: 100vh" class="container text-center">
+    <div style="border-radius: 10px; width: auto; padding:100px 30px 30px 30px" class="faded-container">
+      <div class="d-flex justify-content-center example-button-row">
+        <button
+          *ngFor="let btn of primaryButtons"
+          mat-raised-button color="primary"
+          [ngClass]="{ active: activePrimaryButton === btn }"
+          (click)="setActivePrimaryButton(btn)"
+        >
+          {{ btn }}
+        </button>
+      </div>
+      <div class="d-flex justify-content-center example-button-row">
+        <button
+          *ngFor="let btn of secondaryButtons"
+          mat-raised-button color="primary"
+          [ngClass]="{ active: activeSecondaryButton === btn.name }"
+          (click)="getConstituencyData(btn)"
+        >
+          {{ btn.name }}
+        </button>
+      </div>
+    </div>
+
+    <!-- <img src="https://github.com/rithvikbanka/ECI-2024/blob/main/Prakasam%20District/Candidate%20Images/AC/DARSI/ARIGELA%20SRINIVASULU.jpg" class="candidate-img"> -->
+    <!-- <div style="margin:20px" class="body-container row">
+      <div class="col-md-6">
+        <table class="table">
+            <thead>
+              <tr>
+                <th  style="text-align: center" scope="col">POSITION</th>
+                <th  style="text-align: center" scope="col">CANDIDATE</th>
+                <th  style="text-align: center" scope="col">PARTY</th>
+                <th style="text-align: center" scope="col">CUMULATIVE</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let candidate of candidates; let i=index">
+                <td style="justify-content: center;align-items: center">{{ i+1 }}.</td>
+                <td style="display: flex;"><img src="https://raw.githubusercontent.com/rithvikbanka/ECI-2024/main/Prakasam%20District/Candidate%20Images/AC/DARSI/ARIGELA%20SRINIVASULU.jpg" class="candidate-img"/><span style="justify-content: center;align-items: center;display: flex;">{{ candidate[0] }}</span></td>
+                <td style="padding: 70px 0px;justify-content: center;align-items: center">{{ candidate[1] }}</td>
+                <td style="padding: 70px 0px;justify-content: center;align-items: center">{{ candidate[2] }}</td>
+              </tr>
+            </tbody>
+          </table>
+      </div>
+      <div class="col-md-6">
+        <canvas #barChart width="400" height="400"></canvas>
+      </div>
+    </div> -->
+
+
+    <div class="col-md-12">
+      <div class="body-container row">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="text-align: center" scope="col">POSITION</th>
+              <th style="text-align: center" scope="col">CANDIDATE</th>
+              <th style="text-align: center" scope="col">PARTY</th>
+              <th style="text-align: center" scope="col">CUMULATIVE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let candidate of candidates; let i = index">
+              <td style="text-align: center;">{{ i+1 }}.</td>
+              <td style="display: flex; align-items: center;">
+                <img [src]="getImageUrl(candidate[0])" class="candidate-img" style="margin-right: 10px;"/>
+                <span>{{ candidate[0] }}</span>
+              </td>
+              <td style="text-align: center; vertical-align: middle;">{{ candidate[1] }}</td>
+              <td style="text-align: center; vertical-align: middle;">{{ candidate[2] }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+  

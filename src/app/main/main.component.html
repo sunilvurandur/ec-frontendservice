@@ -1,0 +1,31 @@
+<div class="container text-center mt-3">
+    <div class="header bg-primary text-white py-2">
+      ANNEXURE FOR THE TABULATING TRENDS / RESULT
+    </div>
+    <div class="faded-container py-3 my-3">
+      <div class="d-flex justify-content-center mb-2">
+        <button
+          *ngFor="let btn of primaryButtons"
+          class="btn btn-outline-primary mx-2"
+          [ngClass]="{ active: activePrimaryButton === btn }"
+          (click)="setActivePrimaryButton(btn)"
+        >
+          {{ btn }}
+        </button>
+      </div>
+      <div class="d-flex justify-content-center">
+        <button
+          *ngFor="let btn of secondaryButtons"
+          class="btn btn-outline-primary mx-2"
+          [ngClass]="{ active: activeSecondaryButton === btn }"
+          (click)="setActiveSecondaryButton(btn)"
+        >
+          {{ btn }}
+        </button>
+      </div>
+    </div>
+  </div>
+  
+
+
+  <img src="https://raw.githubusercontent.com/rithvikbanka/ECI-2024/main/Prakasam%20District/Candidate%20Images/AC/DARSI/ARIGELA%20SRINIVASULU.jpg" />
