@@ -24,6 +24,11 @@ export class Main2Component{
 
 
 // json: JsonObject = {};
+  sortAscending: boolean = false; // Set to false for descending order
+  assemblyMinutesAgo: number = 0;
+  parliamentMinutesAgo: number = 0;
+  intervalId: any;
+
   assemblyData: JsonObject = {}
   parliamentData: JsonObject = {}
   ngOnInit() {
@@ -108,8 +113,15 @@ export class Main2Component{
 
 
   getAssemblyData(){
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
     try {
+      let startTime = new Date();
       console.log('cronssing 1')
+      // Reset assemblyMinutesAgo and start a new interval
+      this.assemblyMinutesAgo = 0;
+      this.intervalId = setInterval(() => this.assemblyMinutesAgo++, 60000);
       const apiRequest = this.mainService.getAssemblyData();
       console.log('cross2')
       apiRequest.subscribe({
@@ -127,6 +139,8 @@ export class Main2Component{
             // Object.assign(this.assemblyData, {name: each.values});
 
           }
+          let endTime = new Date();
+          this.assemblyMinutesAgo =  Math.floor((endTime.getTime() - startTime.getTime()) / 60000);
 
           console.log("---------",this.assemblyData);
         },
@@ -141,11 +155,14 @@ export class Main2Component{
  
   getParliamentData(){
     try {
+      let startTime = new Date();
+      this.parliamentMinutesAgo = 0;
+      this.intervalId = setInterval(() => this.parliamentMinutesAgo++, 60000);
       const apiRequest = this.mainService.getParliamentData();
       apiRequest.subscribe({
         next: data=>{
           this.secondaryButtons =[]
-          this.assemblyData={}
+          this.parliamentData={}
           for(let each of data){
             this.secondaryButtons.push({
               name: each.range.split('!')[0],
@@ -156,6 +173,9 @@ export class Main2Component{
             // Object.assign(this.assemblyData, {name: each.values});
 
           }
+          
+          let endTime = new Date();
+          this.assemblyMinutesAgo =  Math.floor((endTime.getTime() - startTime.getTime()) / 60000);
 
           console.log("---parliamentData------",this.parliamentData);
         
@@ -178,11 +198,16 @@ export class Main2Component{
     this.activeSecondaryButton = btn.name
     console.log(btn)
     console.log(this.activePrimaryButton)
-    if(this.activePrimaryButton == "Parliament Constituency")
-    this.candidates = this.parliamentData[btn.name]
-    else this.candidates = this.assemblyData[btn.name]
-
-
+    if(this.activePrimaryButton == "Parliament Constituency"){
+      this.candidates = this.parliamentData[btn.name]
+      this.sortData();
+      this.calculateLeadByCount();
+    }
+    else {
+      this.candidates = this.assemblyData[btn.name];
+      this.sortData();
+      this.calculateLeadByCount();
+    }
   }
 
   getImageUrl(can: any){
@@ -199,6 +224,25 @@ export class Main2Component{
      if(a=='AC') return `https://raw.githubusercontent.com/rithvikbanka/ECI-2024/main/Prakasam%20District/Candidate%20Images/${a}/${this.activeSecondaryButton}/${can}.jpg`.replace(/ /g, '%20')
       else return`https://raw.githubusercontent.com/rithvikbanka/ECI-2024/main/Prakasam%20District/Candidate%20Images/${a}/${can}.jpg`.replace(/ /g, '%20')
     // return "https://raw.githubusercontent.com/rithvikbanka/ECI-2024/main/Prakasam%20District/Candidate%20Images/AC/DARSI/ARIGELA%20SRINIVASULU.jpg"
+  }
+
+  sortData() {
+    this.candidates.sort((a: any[], b: any[]) => {
+      let numA = parseFloat(a[2]);
+      let numB = parseFloat(b[2]);
+      return this.sortAscending ? numA - numB : numB - numA;
+    });
+    this.sortAscending = !this.sortAscending;
+  }
+
+  calculateLeadByCount(){
+    let totalVotes = this.candidates.reduce((total, candidate) => total + parseFloat(candidate[2]), 0);
+    this.candidates.forEach(candidate => {
+      let votes = parseFloat(candidate[2]);
+      let votePercentage = (votes / totalVotes * 100);
+      votePercentage = isNaN(votePercentage) ? 0 : parseFloat(votePercentage.toFixed(2));
+      candidate.push(votePercentage.toString()); // Added the VotePercentage to each candidate
+    });
   }
   
 }
