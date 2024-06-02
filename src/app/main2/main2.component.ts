@@ -32,7 +32,7 @@ export class Main2Component{
   }
 
   primaryButtons: string[] = ['Assembly Constituency', 'Parliament Constituency'];
-  secondaryButtons=[{'name':"'SN PADU'","range":"'SN PADU'"}]
+  secondaryButtons=[{'name':"SN PADU'","range":"'SN PADU'"}]
 
   activePrimaryButton: string = this.primaryButtons[0];
   activeSecondaryButton: string = '';
@@ -61,7 +61,7 @@ export class Main2Component{
   // }
 
   candidates = [
-   ['sunil vurandur', 'mawayya','-69']
+   ['Candidate Name ', 'Candidate Party Name','0']
     // Add more data as needed
   ];
 
@@ -119,10 +119,10 @@ export class Main2Component{
           this.assemblyData={}
           for(let each of data){
             this.secondaryButtons.push({
-              name: each.range.split('!')[0],
+              name: each.range.split('!')[0].replace(/'/g, ""),
               range: each.range
             })
-            let name = each.range.split('!')[0];
+            let name = each.range.split('!')[0].replace(/'/g, "");
             this.assemblyData[name] = each.values
             // Object.assign(this.assemblyData, {name: each.values});
 
