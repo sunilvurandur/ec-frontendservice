@@ -1,20 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import Chart from 'chart.js/auto';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatButtonModule} from '@angular/material/button';
-// import {} from '../../assets/AC/DARSI/'
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 
 //services
 interface JsonObject {
   [key: string]: any; // This allows you to use any string as a key with any type of value.
 }
+
+interface Constituency {
+  name: string;
+  range: string;
+}
 import { MainServiceService } from '../main-service.service';
 @Component({
   selector: 'app-main2',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatDividerModule, MatIconModule],
+  imports: [CommonModule, MatButtonModule, MatDividerModule, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './main2.component.html',
   styleUrl: './main2.component.scss'
 })
@@ -31,21 +35,35 @@ export class Main2Component{
 
   assemblyData: JsonObject = {}
   parliamentData: JsonObject = {}
+
+  //loaders
+  loadingConstituencies:boolean = true;
+
+  //data view types
+  currentDataViewTypes: string = 'table';
+
   ngOnInit() {
-    console.log('ngonit')
     this.getAssemblyData()
   }
 
   primaryButtons: string[] = ['Assembly Constituency', 'Parliament Constituency'];
-  secondaryButtons=[{'name':"SN PADU'","range":"'SN PADU'"}]
+  secondaryButtons: Constituency[] = []
 
   activePrimaryButton: string = this.primaryButtons[0];
   activeSecondaryButton: string = '';
 
+
+  changeView(view:string){
+    this.currentDataViewTypes = view;
+  }
+  
   setActivePrimaryButton(button: string): void {
     this.activePrimaryButton = button;
     button=="Parliament Constituency" ? this.getParliamentData() : this.getAssemblyData();
+  }
 
+  refreshData(){
+    this.setActivePrimaryButton(this.activePrimaryButton);
   }
 
   setActiveSecondaryButton(button: string): void {
@@ -57,59 +75,9 @@ export class Main2Component{
   ctx: CanvasRenderingContext2D | null = null; // Initialize with null
 
 
-  // ngAfterViewInit(): void {
-  //   this.ctx = (this.barChart.nativeElement as HTMLCanvasElement).getContext('2d');
-
-  //   if (this.ctx) { // Checks if ctx is not null
-  //     this.drawBarChart();
-  //   }
-  // }
-
   candidates = [
    ['Candidate Name ', 'Candidate Party Name','0']
-    // Add more data as needed
   ];
-
-  // drawBarChart(): void {
-  //   if (!this.ctx) {
-  //     return;
-  //   }
-
-  //   const candidates = this.dataSource.map(data => data.candidate);
-  //   const cumulatives = this.dataSource.map(data => data.cumulative);
-
-  //   new Chart(this.ctx, {
-  //     type: 'bar',
-  //     data: {
-  //       labels: cumulatives,
-  //       datasets: [{
-  //         label: 'Candidates',
-  //         data: candidates,
-  //         backgroundColor: 'rgba(75, 192, 192, 0.2)',
-  //         borderColor: 'rgba(75, 192, 192, 1)',
-  //         borderWidth: 1
-  //       }]
-  //     },
-  //     options: {
-  //       scales: {
-  //         x: {
-  //           title: {
-  //             display: true,
-  //             text: 'Cumulatives'
-  //           }
-  //         },
-  //         y: {
-  //           title: {
-  //             display: true,
-  //             text: 'Candidates'
-  //           }
-  //         }
-  //       }
-  //     }
-  //   });
-  // }
-
-
 
 
   getAssemblyData(){
@@ -117,8 +85,10 @@ export class Main2Component{
       clearInterval(this.intervalId);
     }
     try {
+      this.loadingConstituencies = true;
+
       let startTime = new Date();
-      console.log('cronssing 1')
+
       // Reset assemblyMinutesAgo and start a new interval
       this.assemblyMinutesAgo = 0;
       this.intervalId = setInterval(() => this.assemblyMinutesAgo++, 60000);
@@ -136,25 +106,32 @@ export class Main2Component{
             })
             let name = each.range.split('!')[0].replace(/'/g, "");
             this.assemblyData[name] = each.values
-            // Object.assign(this.assemblyData, {name: each.values});
+          }
 
+          console.log("*** ", this.secondaryButtons)
+          if(this.secondaryButtons && this.secondaryButtons.length > 0){
+            this.getConstituencyData(this.secondaryButtons[0])
           }
           let endTime = new Date();
           this.assemblyMinutesAgo =  Math.floor((endTime.getTime() - startTime.getTime()) / 60000);
 
-          console.log("---------",this.assemblyData);
+          this.loadingConstituencies = false;
         },
         error:e=>{
-          console.error(e)
+          console.error(e);
+          this.loadingConstituencies = false;
         }
       })
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      this.loadingConstituencies = false;
     }
   }
  
   getParliamentData(){
     try {
+      this.loadingConstituencies = true;
+
       let startTime = new Date();
       this.parliamentMinutesAgo = 0;
       this.intervalId = setInterval(() => this.parliamentMinutesAgo++, 60000);
@@ -170,26 +147,25 @@ export class Main2Component{
             })
             let name = each.range.split('!')[0];
             this.parliamentData[name] = each.values
-            // Object.assign(this.assemblyData, {name: each.values});
-
+          }
+          
+          if(this.secondaryButtons && this.secondaryButtons.length > 0){
+            this.getConstituencyData(this.secondaryButtons[0])
           }
           
           let endTime = new Date();
           this.assemblyMinutesAgo =  Math.floor((endTime.getTime() - startTime.getTime()) / 60000);
 
-          console.log("---parliamentData------",this.parliamentData);
-        
-
-          //updating tables
-
-
+          this.loadingConstituencies = false;
         },
         error:e=>{
           console.error(e)
+          this.loadingConstituencies = false;
         }
       })
     } catch (error) {
       console.log(error)
+      this.loadingConstituencies = false;
     }
   }
 

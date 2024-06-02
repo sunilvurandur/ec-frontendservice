@@ -1,4 +1,4 @@
-<div class="bgimg">
+<div class="bgimg" style="overflow-y: hidden">
   <div style="max-width: 100% ;height: 100vh" class="container text-center">
       <div style="border-radius: 10px; width: auto; padding:100px 30px 30px 30px" class="faded-container">
         <div class="d-flex justify-content-center example-button-row">
@@ -11,7 +11,7 @@
             {{ btn }}
           </button>
         </div>
-        <div class="d-flex justify-content-center example-button-row">
+        <div class="d-flex justify-content-center example-button-row" *ngIf="!loadingConstituencies">
           <button
             *ngFor="let btn of secondaryButtons"
             mat-raised-button color="primary"
@@ -22,42 +22,34 @@
           </button>
         </div>
       </div>
-      <div>
+      <div *ngIf="!loadingConstituencies" style="display: flex;justify-content: space-between;margin-bottom: 1%">
         
-      <p *ngIf="activePrimaryButton === 'Parliament Constituency'; else assemblyBlock">Parliament Last API was called {{ parliamentMinutesAgo }} minutes ago.</p>
-      <ng-template #assemblyBlock><p>Assembly Last API was called {{ assemblyMinutesAgo }} minutes ago.</p></ng-template>
-  
-      </div>
-  
-      <!-- <img src="https://github.com/rithvikbanka/ECI-2024/blob/main/Prakasam%20District/Candidate%20Images/AC/DARSI/ARIGELA%20SRINIVASULU.jpg" class="candidate-img"> -->
-      <!-- <div style="margin:20px" class="body-container row">
-        <div class="col-md-6">
-          <table class="table">
-              <thead>
-                <tr>
-                  <th  style="text-align: center" scope="col">POSITION</th>
-                  <th  style="text-align: center" scope="col">CANDIDATE</th>
-                  <th  style="text-align: center" scope="col">PARTY</th>
-                  <th style="text-align: center" scope="col">CUMULATIVE</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let candidate of candidates; let i=index">
-                  <td style="justify-content: center;align-items: center">{{ i+1 }}.</td>
-                  <td style="display: flex;"><img src="https://raw.githubusercontent.com/rithvikbanka/ECI-2024/main/Prakasam%20District/Candidate%20Images/AC/DARSI/ARIGELA%20SRINIVASULU.jpg" class="candidate-img"/><span style="justify-content: center;align-items: center;display: flex;">{{ candidate[0] }}</span></td>
-                  <td style="padding: 70px 0px;justify-content: center;align-items: center">{{ candidate[1] }}</td>
-                  <td style="padding: 70px 0px;justify-content: center;align-items: center">{{ candidate[2] }}</td>
-                </tr>
-              </tbody>
-            </table>
+        <div style="display: flex;">&nbsp;&nbsp;
+          <div class="blinking-btn">
+          <p *ngIf="activePrimaryButton === 'Parliament Constituency'; else assemblyBlock">
+                Updated {{ parliamentMinutesAgo }} minutes ago
+          </p>
+          <ng-template #assemblyBlock>
+            <p>  Updated {{ assemblyMinutesAgo }} minutes ago</p>
+          </ng-template>
         </div>
-        <div class="col-md-6">
-          <canvas #barChart width="400" height="400"></canvas>
+         &nbsp;&nbsp;<mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="refresh" style="cursor: pointer;" (click)="refreshData()"></mat-icon>
         </div>
-      </div> -->
+
+        <div>
+          <button mat-mini-fab   aria-label="Example icon button with a home icon" (click)="changeView('table')">
+            <mat-icon>format_list_bulleted</mat-icon>
+          </button>
+          &nbsp;&nbsp;
+          <button mat-mini-fab  aria-label="Example icon button with a home icon" (click)="changeView('chart')">
+            <mat-icon>leaderboard</mat-icon>
+          </button>
+          &nbsp;&nbsp;
+        </div>
   
+      </div>  
   
-      <div class="col-md-12">
+      <div class="col-md-12" *ngIf="!loadingConstituencies && currentDataViewTypes == 'table'">
         <div class="body-container row">
           <table class="table">
             <thead>
@@ -86,6 +78,14 @@
             </tbody>
           </table>
         </div>
+      </div>
+
+      <div class="col-md-12" *ngIf="!loadingConstituencies && currentDataViewTypes == 'chart'">
+        chart...
+      </div>
+
+      <div *ngIf="loadingConstituencies" style="display: flex;justify-content: center;margin-top: 8%;">
+        <mat-spinner></mat-spinner>
       </div>
     </div>
   </div>
