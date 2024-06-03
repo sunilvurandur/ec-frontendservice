@@ -1,4 +1,4 @@
-<div class="bgimg" style="overflow-y: hidden">
+<!-- <div class="bgimg" style="overflow-y: hidden">
   <div style="max-width: 100% ;height: 100vh" class="container text-center">
       <div style="border-radius: 10px; width: auto; padding:100px 30px 30px 30px" class="faded-container">
         <div class="d-flex justify-content-center example-button-row">
@@ -45,7 +45,7 @@
   
       </div>  
   
-      <div class="col-md-12" *ngIf="!loadingConstituencies && currentDataViewTypes == 'table'">
+       <div class="col-md-12" *ngIf="!loadingConstituencies && currentDataViewTypes == 'table'">
         <div class="body-container row">
           <table class="table">
             <thead>
@@ -53,9 +53,8 @@
                 <th style="text-align: center; font-weight: normal;" scope="col">S.No</th>
                 <th style="text-align: center; font-weight: normal;" scope="col">CANDIDATE</th>
                 <th style="text-align: center; font-weight: normal;" scope="col">PARTY</th>
-                <th style="text-align: center; font-weight: normal;" scope="col">CUMULATIVE <!-- Down arrow when sortAscending is false -->
+                <th style="text-align: center; font-weight: normal;" scope="col">CUMULATIVE
                 </th>
-                <!-- <th style="font-weight: normal;">Vote Percentage</th> -->
               </tr>
             </thead>
             <tbody>
@@ -67,7 +66,99 @@
                 </td>
                 <td style="text-align: center; vertical-align: middle;">{{ candidate[1] }}</td>
                 <td style="text-align: center; vertical-align: middle;">{{ candidate[2] }}</td>
-                <!-- <td style="text-align: center; vertical-align: middle;">{{ candidate[3]  }} %</td> -->
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="col-md-12" *ngIf="!loadingConstituencies && currentDataViewTypes == 'chart'" style="display: flex;justify-content: space-evenly;">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="chartOptions">
+        </highcharts-chart>
+
+        <highcharts-chart [Highcharts]="Highcharts1" [options]="pieChartOptions">
+        </highcharts-chart>
+        
+      </div>
+
+      <div *ngIf="loadingConstituencies" style="display: flex;justify-content: center;margin-top: 8%;">
+        <mat-spinner></mat-spinner>
+      </div>
+    </div> 
+  </div>
+     -->
+
+     <div class="bgimg" style="overflow-y: hidden">
+  <div class="section">
+    <div class="section1">
+      <div style="border-radius: 10px; width: auto; padding:100px 30px 30px 30px" class="faded-container">
+        <div class="d-flex justify-content-center example-button-row">
+          <button
+            *ngFor="let btn of primaryButtons"
+            mat-raised-button color="primary"
+            [ngClass]="{ active: activePrimaryButton === btn }"
+            (click)="setActivePrimaryButton(btn)"
+          >
+            {{ btn }}
+          </button>
+        </div>
+        <div class="d-flex justify-content-center example-button-row" *ngIf="!loadingConstituencies">
+          <button
+            *ngFor="let btn of secondaryButtons"
+            mat-raised-button color="primary"
+            [ngClass]="{ active: activeSecondaryButton === btn.name }"
+            (click)="getConstituencyData(btn)"
+          >
+            {{ btn.name }}
+          </button>
+        </div>
+      </div>
+      <div *ngIf="!loadingConstituencies" style="display: flex;justify-content: space-between;margin-bottom: 1%">
+        
+        <div style="display: flex;">&nbsp;&nbsp;
+          <div class="blinking-btn">
+          <p *ngIf="activePrimaryButton === 'Parliament Constituency'; else assemblyBlock">
+                Updated {{ parliamentMinutesAgo }} minutes ago
+          </p>
+          <ng-template #assemblyBlock>
+            <p>  Updated {{ assemblyMinutesAgo }} minutes ago</p>
+          </ng-template>
+        </div>
+         &nbsp;&nbsp;<mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="refresh" style="cursor: pointer;" (click)="refreshData()"></mat-icon>
+        </div>
+
+        <div>
+          <button mat-raised-button color="primary" (click)="changeView('table')" [ngClass]="{ active: currentDataViewTypes === 'table' }">Table view <mat-icon>format_list_bulleted</mat-icon></button>
+          &nbsp;&nbsp;
+          <button mat-raised-button color="primary" (click)="changeView('chart')" [ngClass]="{ active: currentDataViewTypes === 'chart' }">Graph view <mat-icon>leaderboard</mat-icon></button>
+          &nbsp;&nbsp;
+        </div>
+  
+      </div>  
+  
+    </div>
+    <div class="section2">
+      <div *ngIf="!loadingConstituencies && currentDataViewTypes == 'table'">
+        <div class="body-container row">
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="text-align: center; font-weight: normal;" scope="col">S.No</th>
+                <th style="text-align: center; font-weight: normal;" scope="col">CANDIDATE</th>
+                <th style="text-align: center; font-weight: normal;" scope="col">PARTY</th>
+                <th style="text-align: center; font-weight: normal;" scope="col">CUMULATIVE
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let candidate of candidates; let i = index">
+                <td style="text-align: center;vertical-align: middle;">{{ i+1 }}.</td>
+                <td style="display: flex; align-items: center;">
+                  <img [src]="getImageUrl(candidate[0])" class="candidate-img" style="margin-right: 10px;"/>
+                  <span>{{ candidate[0] }}</span>
+                </td>
+                <td style="text-align: center; vertical-align: middle;">{{ candidate[1] }}</td>
+                <td style="text-align: center; vertical-align: middle;">{{ candidate[2] }}</td>
               </tr>
             </tbody>
           </table>
@@ -88,4 +179,4 @@
       </div>
     </div>
   </div>
-    
+  </div>
