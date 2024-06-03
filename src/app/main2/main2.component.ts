@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatButtonModule} from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
+import {MatCardModule} from '@angular/material/card';
 
 //services
 interface JsonObject {
@@ -15,16 +16,29 @@ interface Constituency {
   range: string;
 }
 import { MainServiceService } from '../main-service.service';
+import { HighchartsChartModule } from 'highcharts-angular';
+import Highcharts, { SeriesPieOptions } from 'highcharts';
+import { Options, SeriesBarOptions } from 'highcharts';
+
+interface ChartOptions extends Options {
+  xAxis: {
+    categories: string[];
+  };
+  series: SeriesBarOptions[];
+}
+
 @Component({
   selector: 'app-main2',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatDividerModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [CommonModule, MatButtonModule, MatDividerModule, MatIconModule, MatProgressSpinnerModule, HighchartsChartModule, MatCardModule],
   templateUrl: './main2.component.html',
   styleUrl: './main2.component.scss'
 })
 
-export class Main2Component{
+export class Main2Component implements AfterViewInit{
   constructor(private mainService: MainServiceService){}
+
+
 
 
 // json: JsonObject = {};
@@ -42,8 +56,114 @@ export class Main2Component{
   //data view types
   currentDataViewTypes: string = 'table';
 
+  //highcharts
+  Highcharts: typeof Highcharts = Highcharts;
+  Highcharts1: typeof Highcharts = Highcharts;
+
+  chartRef: Highcharts.Chart | undefined;
+  chartOptions: Highcharts.Options = {
+    chart: {
+      type: 'bar',
+      backgroundColor: '#f6fff8', // Background color
+      borderColor: '#ccc', // Border color
+      borderWidth: 1, // Border width
+      borderRadius: 10 // Border radius
+    },
+    title: {
+      text: 'Current Top 5 Results'
+    },
+    yAxis: {
+      title: {
+        text: 'Total Votes Secured'
+      },
+    },
+    xAxis: {
+      title: {
+        text: 'Candidate Name'
+      },
+      categories: []
+    },
+    series: [{
+      type: 'bar',
+      data: []
+    }]
+  }
+
+  pieChartRef: Highcharts.Chart | undefined;
+  pieChartOptions: Highcharts.Options = {
+    chart: {
+      type: 'pie',
+      backgroundColor: '#f6fff8', // Background color
+      borderColor: '#ccc', // Border color
+      borderWidth: 1, // Border width
+      borderRadius: 10 // Border radius
+    },
+    title: {
+      text: 'Vote Share by Party'
+    },
+    tooltip: {
+      pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+    },
+    plotOptions: {
+      pie: {
+        allowPointSelect: true,
+        cursor: 'pointer',
+        dataLabels: {
+          enabled: true,
+          format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+        }
+      }
+    },
+    series: [{
+      type: 'pie',
+      name: 'Vote Share',
+      data: [ ]
+    }]
+  }
+  //highcharts
+
   ngOnInit() {
     this.getAssemblyData()
+  }
+
+  ngAfterViewInit(): void {
+    this.chartRef = Highcharts.chart('container', this.chartOptions);
+  }
+
+  getCandidatesGraphData(data: any){
+    const sortedData = data.sort((a: any, b: any) => b[2] - a[2]).slice(0, 5);
+
+    const seriesData = sortedData.map((item: any) => ({ name: item[0], y: Number(item[2]) }));
+  
+    const series: SeriesBarOptions[] = [{
+      type: 'bar',
+      data: seriesData
+    }];
+  
+    (this.chartOptions as ChartOptions).xAxis.categories = sortedData.map((item: any) => item[0]);
+    (this.chartOptions as ChartOptions).series = series;
+  
+    if (this.chartRef) {
+      this.chartRef.update(this.chartOptions);
+    }
+  }
+
+  getPartyGraphData(data: any){
+    const sortedData = data.sort((a: any, b: any) => b[2] - a[2]).slice(0, 5);
+
+    const seriesData = sortedData.map((item: any) => ({ name: item[1], y: Number(item[2]) }));
+  
+    const series: SeriesPieOptions[] = [{
+      type: 'pie',
+      name: 'Vote Share',
+      data: seriesData
+    }];
+  
+    (this.pieChartOptions as Highcharts.Options).series = series;
+  
+    if (this.pieChartRef) {
+      this.pieChartRef.update(this.pieChartOptions);
+    }
   }
 
   primaryButtons: string[] = ['Assembly Constituency', 'Parliament Constituency'];
@@ -67,7 +187,6 @@ export class Main2Component{
   }
 
   setActiveSecondaryButton(button: string): void {
-    console.log(button)
     this.activeSecondaryButton = button;
   }
   @ViewChild('barChart')
@@ -78,6 +197,7 @@ export class Main2Component{
   candidates = [
    ['Candidate Name ', 'Candidate Party Name','0']
   ];
+
 
 
   getAssemblyData(){
@@ -93,10 +213,8 @@ export class Main2Component{
       this.assemblyMinutesAgo = 0;
       this.intervalId = setInterval(() => this.assemblyMinutesAgo++, 60000);
       const apiRequest = this.mainService.getAssemblyData();
-      console.log('cross2')
       apiRequest.subscribe({
         next: data=>{
-          console.log(data)
           this.secondaryButtons =[]
           this.assemblyData={}
           for(let each of data){
@@ -108,7 +226,6 @@ export class Main2Component{
             this.assemblyData[name] = each.values
           }
 
-          console.log("*** ", this.secondaryButtons)
           if(this.secondaryButtons && this.secondaryButtons.length > 0){
             this.getConstituencyData(this.secondaryButtons[0])
           }
@@ -123,7 +240,7 @@ export class Main2Component{
         }
       })
     } catch (error) {
-      console.log(error);
+      console.error(error);
       this.loadingConstituencies = false;
     }
   }
@@ -164,61 +281,86 @@ export class Main2Component{
         }
       })
     } catch (error) {
-      console.log(error)
+      console.error(error)
       this.loadingConstituencies = false;
     }
   }
 
   getConstituencyData(btn: any){
     // let object = this.parliamentData.find(obj => obj["range"].split('!')[0] === btn)
-    this.activeSecondaryButton = btn.name
-    console.log(btn)
-    console.log(this.activePrimaryButton)
+    this.activeSecondaryButton = btn.name;
     if(this.activePrimaryButton == "Parliament Constituency"){
-      this.candidates = this.parliamentData[btn.name]
+      const dataKey = btn.name; 
+      this.candidates = []
+
+      if (this.parliamentData[dataKey]) {
+        let sortedData = this.parliamentData[dataKey].slice().sort((a: any, b: any) => {
+          const voteCountA = parseInt(a[a.length - 1].replace(/,/g, ''), 10);
+          const voteCountB = parseInt(b[b.length - 1].replace(/,/g, ''), 10);
+          return voteCountB - voteCountA;
+        });
+        this.candidates = [];
+        this.candidates = [...sortedData]
+      }
+
+  
+
+      // this.candidates = this.parliamentData[btn.name]
       this.sortData();
       this.calculateLeadByCount();
     }
     else {
-      this.candidates = this.assemblyData[btn.name];
+      const dataKey = btn.name; 
+      this.candidates = [];
+      
+      if (this.assemblyData[dataKey]) {
+        let sortedData = this.assemblyData[dataKey].slice().sort((a: any, b: any) => {
+          const voteCountA = parseInt(a[a.length - 1].replace(/,/g, ''), 10);
+          const voteCountB = parseInt(b[b.length - 1].replace(/,/g, ''), 10);
+          return voteCountB - voteCountA;
+        });
+        this.candidates = [];
+        this.candidates = [...sortedData]
+      }
+      
+      // this.candidates = this.assemblyData[btn.name];
       this.sortData();
       this.calculateLeadByCount();
     }
+
+
+    this.getCandidatesGraphData(this.candidates);
+    this.getPartyGraphData(this.candidates);
   }
 
   getImageUrl(can: any){
-    console.log(can);
-    console.log(this.secondaryButtons)
     let a = '';
     if(this.activePrimaryButton == "Parliament Constituency")
       a = 'PC'
     else 
       a = 'AC'
-    // let url = `https://raw.githubusercontent.com/rithvikbanka/ECI-2024/main/Prakasam%20District/Candidate%20Images/${a}/${this.secondaryButtons}/${can}.jpg`.replace(/ /g, '%20')
-
-    console.log(`https://raw.githubusercontent.com/rithvikbanka/ECI-2024/main/Prakasam%20District/Candidate%20Images/${a}/${this.activeSecondaryButton}/${can}.jpg`.replace(/ /g, '%20'))
      if(a=='AC') return `https://raw.githubusercontent.com/rithvikbanka/ECI-2024/main/Prakasam%20District/Candidate%20Images/${a}/${this.activeSecondaryButton}/${can}.jpg`.replace(/ /g, '%20')
       else return`https://raw.githubusercontent.com/rithvikbanka/ECI-2024/main/Prakasam%20District/Candidate%20Images/${a}/${can}.jpg`.replace(/ /g, '%20')
-    // return "https://raw.githubusercontent.com/rithvikbanka/ECI-2024/main/Prakasam%20District/Candidate%20Images/AC/DARSI/ARIGELA%20SRINIVASULU.jpg"
+   
   }
 
   sortData() {
-    this.candidates.sort((a: any[], b: any[]) => {
-      let numA = parseFloat(a[2]);
-      let numB = parseFloat(b[2]);
-      return this.sortAscending ? numA - numB : numB - numA;
-    });
-    this.sortAscending = !this.sortAscending;
+    // this.candidates.sort((a: any[], b: any[]) => {
+    //   let numA = parseFloat(a[2]);
+    //   let numB = parseFloat(b[2]);
+    //   return this.sortAscending ? numA - numB : numB - numA;
+    // });
+    // this.sortAscending = !this.sortAscending;
   }
 
   calculateLeadByCount(){
-    let totalVotes = this.candidates.reduce((total, candidate) => total + parseFloat(candidate[2]), 0);
-    this.candidates.forEach(candidate => {
-      let votes = parseFloat(candidate[2]);
-      let votePercentage = (votes / totalVotes * 100);
-      votePercentage = isNaN(votePercentage) ? 0 : parseFloat(votePercentage.toFixed(2));
-      candidate.push(votePercentage.toString()); // Added the VotePercentage to each candidate
-    });
+    // let totalVotes = this.candidates.reduce((total, candidate) => total + parseFloat(candidate[2]), 0);
+    // this.candidates.forEach(candidate => {
+    //   let votes = parseFloat(candidate[2]);
+    //   let votePercentage = (votes / totalVotes * 100);
+    //   votePercentage = isNaN(votePercentage) ? 0 : parseFloat(votePercentage.toFixed(2));
+    //   candidate.push(votePercentage.toString()); // Added the VotePercentage to each candidate
+    // });
   }
   
 }

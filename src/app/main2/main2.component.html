@@ -37,14 +37,9 @@
         </div>
 
         <div>
-          <button mat-mini-fab   aria-label="Example icon button with a home icon" (click)="changeView('table')">
-            <mat-icon>format_list_bulleted</mat-icon>
-          </button>
+          <button mat-raised-button color="primary" (click)="changeView('table')" [ngClass]="{ active: currentDataViewTypes === 'table' }">Table view <mat-icon>format_list_bulleted</mat-icon></button>
           &nbsp;&nbsp;
-          <button mat-mini-fab  aria-label="Example icon button with a home icon" (click)="changeView('chart')">
-            <mat-icon>leaderboard</mat-icon>
-          </button>
-          &nbsp;&nbsp;
+          <button mat-raised-button color="primary" (click)="changeView('chart')" [ngClass]="{ active: currentDataViewTypes === 'chart' }">Graph view <mat-icon>leaderboard</mat-icon></button>
         </div>
   
       </div>  
@@ -54,14 +49,12 @@
           <table class="table">
             <thead>
               <tr>
-                <th style="text-align: center" scope="col">S.No</th>
-                <th style="text-align: center" scope="col">CANDIDATE</th>
-                <th style="text-align: center" scope="col">PARTY</th>
-                <th style="text-align: center" scope="col" (click)="sortData()">CUMULATIVE
-                  <span *ngIf="sortAscending">&#9650;</span> <!-- Up arrow when sortAscending is true -->
-                  <span *ngIf="!sortAscending">&#9660;</span> <!-- Down arrow when sortAscending is false -->
+                <th style="text-align: center; font-weight: normal;" scope="col">S.No</th>
+                <th style="text-align: center; font-weight: normal;" scope="col">CANDIDATE</th>
+                <th style="text-align: center; font-weight: normal;" scope="col">PARTY</th>
+                <th style="text-align: center; font-weight: normal;" scope="col">CUMULATIVE <!-- Down arrow when sortAscending is false -->
                 </th>
-                <th>Vote Percentage</th>
+                <!-- <th style="font-weight: normal;">Vote Percentage</th> -->
               </tr>
             </thead>
             <tbody>
@@ -73,15 +66,20 @@
                 </td>
                 <td style="text-align: center; vertical-align: middle;">{{ candidate[1] }}</td>
                 <td style="text-align: center; vertical-align: middle;">{{ candidate[2] }}</td>
-                <td style="text-align: center; vertical-align: middle;">{{ candidate[3]  }} %</td>
+                <!-- <td style="text-align: center; vertical-align: middle;">{{ candidate[3]  }} %</td> -->
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <div class="col-md-12" *ngIf="!loadingConstituencies && currentDataViewTypes == 'chart'">
-        chart...
+      <div class="col-md-12" *ngIf="!loadingConstituencies && currentDataViewTypes == 'chart'" style="display: flex;justify-content: space-evenly;">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="chartOptions">
+        </highcharts-chart>
+
+        <highcharts-chart [Highcharts]="Highcharts1" [options]="pieChartOptions">
+        </highcharts-chart>
+        
       </div>
 
       <div *ngIf="loadingConstituencies" style="display: flex;justify-content: center;margin-top: 8%;">
