@@ -354,13 +354,13 @@ export class Main2Component implements AfterViewInit{
   }
 
   calculateLeadByCount(){
-    // let totalVotes = this.candidates.reduce((total, candidate) => total + parseFloat(candidate[2]), 0);
-    // this.candidates.forEach(candidate => {
-    //   let votes = parseFloat(candidate[2]);
-    //   let votePercentage = (votes / totalVotes * 100);
-    //   votePercentage = isNaN(votePercentage) ? 0 : parseFloat(votePercentage.toFixed(2));
-    //   candidate.push(votePercentage.toString()); // Added the VotePercentage to each candidate
-    // });
+    let totalVotes = this.candidates.reduce((total, candidate) => total + parseFloat(candidate[2].replace(/,/g, "")), 0);
+    this.candidates.forEach(candidate => {
+      let votes = parseFloat(candidate[2].replace(/,/g, ""));
+      let votePercentage = ((votes / totalVotes) * 100);
+      votePercentage = isNaN(votePercentage) ? 0 : parseFloat(votePercentage.toFixed(2));
+      candidate.push(votePercentage.toString()); // Added the VotePercentage to each candidate
+    });
   }
   
 }

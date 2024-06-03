@@ -138,7 +138,7 @@
   
     </div>
     <div class="section2">
-      <div *ngIf="!loadingConstituencies && currentDataViewTypes == 'table'">
+      <div *ngIf="!loadingConstituencies && currentDataViewTypes == 'table'" style="height:100%">
         <div class="body-container row">
           <table class="table">
             <thead>
@@ -147,6 +147,8 @@
                 <th style="text-align: center; font-weight: normal;" scope="col">CANDIDATE</th>
                 <th style="text-align: center; font-weight: normal;" scope="col">PARTY</th>
                 <th style="text-align: center; font-weight: normal;" scope="col">CUMULATIVE
+                </th>
+                <th style="text-align: center; font-weight: normal;" scope="col">VOTE PERCENTAGE
                 </th>
               </tr>
             </thead>
@@ -159,6 +161,7 @@
                 </td>
                 <td style="text-align: center; vertical-align: middle;">{{ candidate[1] }}</td>
                 <td style="text-align: center; vertical-align: middle;">{{ candidate[2] }}</td>
+                <td style="text-align: center; vertical-align: middle;">{{ candidate[3] }} %</td>
               </tr>
             </tbody>
           </table>
